@@ -1,0 +1,8 @@
+name: Preferences
+version: '1.1'
+main: net.aincraft.Preferences
+authors: [ mintychochip ]
+api-version: '1.13'
+commands:
+  test:
+    description: asdads
