@@ -1,73 +1,59 @@
 package net.aincraft;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.google.inject.Key;
+import com.google.inject.TypeLiteral;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import net.aincraft.commands.GetCommand;
-import net.aincraft.commands.RootCommand;
 import net.aincraft.commands.SetCommand;
-import net.aincraft.config.YamlConfiguration;
-import net.aincraft.repository.ConnectionSourceFactory;
-import net.aincraft.types.EnumReferenceType;
 import net.aincraft.types.PreferenceTypes;
-import net.kyori.adventure.bossbar.BossBar;
-import net.kyori.adventure.bossbar.BossBar.Color;
-import net.kyori.adventure.key.Key;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-public class Preferences extends JavaPlugin {
+public final class Preferences extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    Map<Key, Preference<?>> preferences = new HashMap<>();
-    YamlConfiguration configuration = YamlConfiguration.create(this, "config.yml");
-    ConnectionSourceFactory connectionSourceFactory = new ConnectionSourceFactory(this,
-        configuration);
-    RelationalPreferenceRepositoryImpl store = new RelationalPreferenceRepositoryImpl(
-        connectionSourceFactory.create());
-    PreferenceServiceImpl service = new PreferenceServiceImpl(preferences, store);
-    PreferenceKey<Material> key = service.register("modular_jobs", new Example());
-    PreferenceKey<Color> key2 = service.register("preferences", new BossBarColor());
+    Injector injector = Guice.createInjector(new PluginModule(this));
+    Bukkit.getServicesManager()
+        .register(PreferenceService.class, injector.getInstance(PreferenceService.class), this,
+            ServicePriority.High);
+    PreferenceService service = injector.getInstance(PreferenceService.class);
+    Preference.Key<Material> key = service.register(this, new Preference<>() {
+      @Override
+      public PreferenceType<Material> getType() {
+        return PreferenceTypes.MATERIAL;
+      }
+
+      @Override
+      public String getName() {
+        return "tets";
+      }
+
+      @Override
+      public @NotNull Material getDefault() {
+        return Material.ACACIA_BOAT;
+      }
+    });
+
+    try {
+      Material test = service.getPreference(UUID.fromString("test"), key);
+    } catch (ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+    LiteralArgumentBuilder<CommandSourceStack> sourceStack = injector.getInstance(
+        Key.get(new TypeLiteral<>() {
+        }));
     getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
-        c -> c.registrar().register(new RootCommand(new GetCommand(preferences, store),
-            new SetCommand(preferences, store)).build().build()));
-  }
-
-  static final class Example implements Preference<Material> {
-
-    @Override
-    public PreferenceType<Material> getType() {
-      return PreferenceTypes.MATERIAL;
-    }
-
-    @Override
-    public String getName() {
-      return "example";
-    }
-
-    @Override
-    public @NotNull Material getDefault() {
-      return Material.STONE;
-    }
-  }
-
-  static final class BossBarColor implements Preference<BossBar.Color> {
-
-    @Override
-    public PreferenceType<BossBar.Color> getType() {
-      return new EnumReferenceType<>(BossBar.Color.class);
-    }
-
-    @Override
-    public String getName() {
-      return "bossbar-color";
-    }
-
-    @Override
-    public @NotNull BossBar.Color getDefault() {
-      return BossBar.Color.BLUE;
-    }
+        c -> c.registrar().register(sourceStack.build()));
   }
 }

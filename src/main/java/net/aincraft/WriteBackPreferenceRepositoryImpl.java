@@ -2,8 +2,6 @@ package net.aincraft;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import io.papermc.paper.threadedregions.scheduler.ScheduledTask;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,12 +42,13 @@ public final class WriteBackPreferenceRepositoryImpl implements PreferenceReposi
     WriteBackPreferenceRepositoryImpl repository = new WriteBackPreferenceRepositoryImpl(delegate);
     Bukkit.getAsyncScheduler().runAtFixedRate(plugin, (ScheduledTask) -> {
       repository.flush();
-    }, 0L, 200L, TimeUnit.SECONDS);
+    }, 0L, 10, TimeUnit.SECONDS);
     return repository;
   }
 
   @Override
-  public @Nullable PreferenceRecord load(String playerId, String preferenceKey) {
+  public @Nullable PreferenceRecord load(String playerId, String preferenceKey)
+      throws ExecutionException {
     FlatKey key = new FlatKey(playerId, preferenceKey);
     if (pendingDeletes.contains(key)) {
       return null;
@@ -58,11 +57,7 @@ public final class WriteBackPreferenceRepositoryImpl implements PreferenceReposi
     if (record != null) {
       return record;
     }
-    try {
-      return readCache.get(key, () -> delegate.load(playerId, preferenceKey));
-    } catch (ExecutionException e) {
-      throw new RuntimeException(e);
-    }
+    return readCache.get(key, () -> delegate.load(playerId, preferenceKey));
   }
 
   @Override

@@ -12,7 +12,8 @@ import net.aincraft.repository.ConnectionSource;
 import net.aincraft.repository.PreferenceRepository;
 import org.jetbrains.annotations.Nullable;
 
-public class RelationalPreferenceRepositoryImpl implements PreferenceRepository {
+public final class RelationalPreferenceRepositoryImpl implements PreferenceRepository {
+
 
   private final Cache<String, PreferenceRecord> readCache = CacheBuilder.newBuilder()
       .expireAfterAccess(

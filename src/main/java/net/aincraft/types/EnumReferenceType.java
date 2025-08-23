@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Locale;
 import net.aincraft.PreferenceType;
 
-public class EnumReferenceType<E extends Enum<E>> implements PreferenceType<E> {
+public final class EnumReferenceType<E extends Enum<E>> implements PreferenceType<E> {
 
   private final Class<E> clazz;
 

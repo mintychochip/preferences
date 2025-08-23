@@ -1,5 +1,6 @@
 package net.aincraft.commands;
 
+import com.google.inject.Inject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -7,7 +8,9 @@ import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import net.aincraft.Preference;
+import net.aincraft.registry.PreferenceRegistry;
 import net.aincraft.repository.PreferenceRepository;
 import net.aincraft.repository.PreferenceRepository.PreferenceRecord;
 import net.kyori.adventure.key.Key;
@@ -16,11 +19,12 @@ import org.bukkit.entity.Player;
 
 public class SetCommand implements Command {
 
-  private final Map<Key, Preference<?>> preferences;
+  private final PreferenceRegistry preferenceRegistry;
   private final PreferenceRepository repository;
 
-  public SetCommand(Map<Key, Preference<?>> preferences, PreferenceRepository store) {
-    this.preferences = preferences;
+  @Inject
+  public SetCommand(PreferenceRegistry preferenceRegistry, PreferenceRepository store) {
+    this.preferenceRegistry = preferenceRegistry;
     this.repository = store;
   }
 
@@ -31,7 +35,7 @@ public class SetCommand implements Command {
         .then(
             Commands.argument("pref", ArgumentTypes.key())
                 .suggests((context, builder) -> {
-                  preferences.keySet()
+                  preferenceRegistry.keySet()
                       .stream()
                       .map(Key::asString)
                       .forEach(builder::suggest);
@@ -43,13 +47,13 @@ public class SetCommand implements Command {
                           // Parse pref argument
                           Key pref = context.getArgument("pref", Key.class);
 
-                          Preference<?> preference = preferences.get(pref);
-                          if (preference == null) {
+                          Optional<Preference<?>> preference = preferenceRegistry.get(pref);
+                          if (preference.isEmpty()) {
                             return builder.buildFuture();
                           }
-
+                          Preference<?> preference1 = preference.get();
                           String partialInput = builder.getRemaining(); // User's current partial input
-                          List<String> suggestions = preference.getType().suggestValues();
+                          List<String> suggestions = preference1.getType().suggestValues();
                           suggestions.forEach(builder::suggest);
 
                           return builder.buildFuture();
