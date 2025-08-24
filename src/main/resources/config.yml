@@ -1,1 +1,4 @@
-type: sqlite
+type: postgresql
+jdbc-url: jdbc:postgresql://ep-plain-waterfall-a6ovy6kr-pooler.us-west-2.aws.neon.tech/maindb?sslmode=require&channel_binding=require
+username: maindb_owner
+password: bM64kqVQfcRx

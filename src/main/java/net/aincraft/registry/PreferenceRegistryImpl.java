@@ -2,17 +2,14 @@ package net.aincraft.registry;
 
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import net.aincraft.Preference;
-import net.aincraft.PreferenceProvider;
 import net.kyori.adventure.key.Key;
-import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.NotNull;
 
-public class PreferenceRegistryImpl implements PreferenceRegistry {
+final class PreferenceRegistryImpl implements PreferenceRegistry {
 
   private final Map<Key, Preference<?>> registeredPreferences = new HashMap<>();
 

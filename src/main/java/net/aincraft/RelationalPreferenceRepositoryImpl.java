@@ -57,6 +57,7 @@ public final class RelationalPreferenceRepositoryImpl implements PreferenceRepos
       ps.setString(2, record.preferenceKey());
       ps.setString(3, record.value());
       ps.executeUpdate();
+      readCache.put(record.playerId() + record.preferenceKey(), record);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }
@@ -70,6 +71,7 @@ public final class RelationalPreferenceRepositoryImpl implements PreferenceRepos
       ps.setString(1, playerId);
       ps.setString(2, preferenceKey);
       ps.executeUpdate();
+      readCache.invalidate(playerId + preferenceKey);
     } catch (SQLException e) {
       throw new RuntimeException(e);
     }

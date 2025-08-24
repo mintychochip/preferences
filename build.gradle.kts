@@ -19,6 +19,7 @@ java {
 }
 
 dependencies {
+    compileOnly("org.mongodb:mongodb-driver-sync:5.1.0")
     compileOnly("io.papermc.paper:paper-api:1.21.7-R0.1-SNAPSHOT")
     implementation("com.google.inject:guice:7.0.0")
     implementation("com.zaxxer:HikariCP:5.1.0")

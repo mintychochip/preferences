@@ -1,7 +1,7 @@
 package net.aincraft;
 
-import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface Preference<T> {
 
@@ -9,11 +9,20 @@ public interface Preference<T> {
 
   String getName();
 
+  @Nullable
+  default String getDescription() {
+    return null;
+  }
+
   @NotNull
   T getDefault();
 
   interface Key<T> {
 
     net.kyori.adventure.key.Key getKey();
+  }
+
+  interface Builder {
+
   }
 }

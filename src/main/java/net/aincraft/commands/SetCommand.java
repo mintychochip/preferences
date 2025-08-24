@@ -7,7 +7,6 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import net.aincraft.Preference;
 import net.aincraft.registry.PreferenceRegistry;
