@@ -6,8 +6,8 @@ plugins {
     `maven-publish`
 }
 
-group = "net.aincraft"
-version = "1.0-SNAPSHOT"
+group = "com.github.mintychochip"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -48,5 +48,17 @@ tasks {
             url("https://www.spigotmc.org/resources/placeholderapi.6245/download?version=541946")
         }
 
+    }
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            groupId = project.group.toString()
+            artifactId = "preferences"
+            version = project.version.toString()
+        }
     }
 }
